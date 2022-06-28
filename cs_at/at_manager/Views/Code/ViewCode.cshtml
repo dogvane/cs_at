@@ -1,0 +1,42 @@
+﻿@using DataLib.Entity
+@using DownByWind.Entity
+
+@{
+    ViewData["Title"] = "ViewCode";
+}
+
+<h1>ViewCode</h1>
+
+@{
+    var name = Model.Code == null ? "代码错误":Model.Code.Name; 
+}
+@name
+
+k线数据
+@{
+    if(name != "代码错误")
+    {
+        <div id="echart_kbar" style="width:600px; height: 400px">
+        </div>
+        <ol>
+        @{ 
+            foreach(Bar2 bar in  Model.dayBars)        
+            {
+                <li>
+                @bar.TradingDay @bar.C @bar.MA._5
+                </li>
+            }
+        }
+        </ol>
+    }
+}
+
+<script src="~/js/Views/Code/kbarset.js"></script>
+
+<script type="text/javascript">
+    
+   var jsonData = @Json.Serialize(Model.dayBars);
+   
+   drawKBar(jsonData);
+
+</script>

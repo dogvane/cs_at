@@ -1,0 +1,14 @@
+﻿@using DownByWind.Entity
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>Code View</h1>
+<ul>
+@foreach(CodeInfo code in Model.Codes)
+{    
+    <li><a href="/Code/@code.Code">@code.Name (@code.Code)</a></li>
+}
+</ul>
+
