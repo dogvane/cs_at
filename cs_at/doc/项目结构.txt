@@ -1,23 +1,23 @@
 
-1. ���ݴ洢Ϊmysql
+1. 数据存储为mysql
 2. 
 
-at ����ƽ̨����ִ̨�У�����Ŀ��
+at 策略平台（后台执行，主项目）
 
-common -- �Ź��������ݷ���
-at_interface -- �Ź��������ݷ��ʽӿ�
-				��Ӧ��ʵ�֣������ʵ�����
-				������ֱ�Ӷ����ݿ�
-				Ҳ������ͨ���ڲ�΢����ӿڻ�ȡ
+common -- 放公共的数据方法
+at_interface -- 放公共的数据访问接口
+				对应的实现，则根据实际情况
+				可能是直接读数据库
+				也可能是通过内部微服务接口获取
 
-at_manager һ���򵥵���Ŀ����ƽ̨
+at_manager 一个简单的项目管理平台
 
-trade ����ģ��
+trade 交易模块
 
-risk ���ģ��
+risk 风控模块
 
-DataLib Ǩ�ƹ��������ݽṹ��Ŀ
+DataLib 迁移过来的数据结构项目
 
-spider -- ����Ŀ¼����Ҫ����ȡ��Ҫ������
-	SpiderTools ������
-	SInaSpider ��ȡ���˲ƾ�������
+spider -- 爬虫目录，主要是爬取需要的数据
+	SpiderTools 工具类
+	SinaSpider 爬取新浪财经的数据
