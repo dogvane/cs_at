@@ -262,4 +262,63 @@ internal class _SinaSpider : Spider
             }
         });
     }
+
+    public void 开始更新分时图()
+    {
+        foreach (var item in marketTradeCodes)
+        {
+            更新分时图(item.symbol);
+        }
+    }
+
+
+    private void 更新分时图(string code)
+    {
+        // 分时图时刻都会更新，要注意，每天的实际数据要在收盘后更新
+
+        // https://stock2.finance.sina.com.cn/futures/api/jsonp.php//InnerFuturesNewService.getMinLine?symbol=rb2210
+
+        var baseUrl = "https://stock2.finance.sina.com.cn/futures/api/jsonp.php//InnerFuturesNewService.getMinLine?symbol={0}";
+        string url = string.Format(baseUrl, code);
+
+
+        DownloadScheduler.Add(url, (request, responseBody) =>
+        {
+            // 返回不是标准的json数据，需要做一下预处理
+            var start = responseBody.IndexOf("(") + 1;
+            var end = responseBody.LastIndexOf(")");
+            var json = responseBody.Substring(start, end - start);
+            if(json == "null")
+            {
+                // 如果当前品种没交易，或者在每天的开盘前
+                // 分时图的数据实际上是空的
+                return;
+            }
+
+            var arrs = JArray.Parse(json);
+            JArray first = (JArray)arrs[0];
+            string date = first[6].ToString();
+
+            var jsonFileName = string.Format("sina/{0}/{1}/ts/{2}.csv", code.GetCodeStart(), code, date);
+            var fileInfo = new FileInfo(jsonFileName);
+            Directory.CreateDirectory(fileInfo.DirectoryName);
+            List<TimePrice> prices = new List<TimePrice>(arrs.Count);
+
+            foreach (JArray item in arrs)
+            {
+                var p = new TimePrice
+                {
+                    Date = item[0].ToString(),
+                    Price = double.Parse(item[1].ToString()),
+                    AveragePrice = double.Parse(item[2].ToString()),
+                    Volume = int.Parse(item[3].ToString()),
+                    Interest = int.Parse(item[4].ToString()),
+                };
+
+                prices.Add(p);
+            }
+
+            prices.WriteToCSVFile(jsonFileName);
+        });
+    }
 }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -42,6 +44,42 @@ namespace SinaSpider.Utils
                 return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// 将数据写入csv文件
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="datas">数据</param>
+        /// <param name="fileName">csv的文件名</param>
+        public static void WriteToCSVFile<T>(this List<T> datas, string fileName)
+        {
+            using (var writer = new StreamWriter(fileName))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(datas);
+            }
+        }
+
+        /// <summary>
+        /// 从csv文件里读取一组数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName">csv文件名</param>
+        /// <returns></returns>
+        public static List<T> ReadByCSVFile<T>(this string fileName)
+        {
+            if (!File.Exists(fileName))
+            {
+                return new List<T>();
+            }
+
+            using (var reader = new StreamReader(fileName))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var records = csv.GetRecords<T>();
+                return records.ToList();
+            }
         }
     }
 }
