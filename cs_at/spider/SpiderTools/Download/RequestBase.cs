@@ -19,6 +19,19 @@ namespace SpiderTools.Download
             this.Uri = url;
         }
 
+        public RequestBase(string url, string methodType = "POST")
+        {
+            this.Uri = url;
+            // 判断 methodType 是否只是 GET 或者 POST
+            // 如果不是这两者，就会报错
+            if (methodType == null || (methodType != "GET" && methodType != "POST"))
+            {
+                throw new ArgumentException($"methodType 只能是 GET 或者 POST");
+            }
+
+            this.Method = methodType;
+        }
+
         /// <summary>
         /// 网络地址
         /// </summary>

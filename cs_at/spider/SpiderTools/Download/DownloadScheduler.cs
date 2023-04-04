@@ -43,6 +43,11 @@ namespace SpiderTools.Download
             }
         }
 
+        public DownloadScheduler() : this(null, null)
+        {
+
+        }
+
         /// <summary>
         /// 构造需要初始化一些自己相关的内容
         /// 也可以留到后面再设置
@@ -51,7 +56,7 @@ namespace SpiderTools.Download
         public DownloadScheduler(ISpider spider, DownloadSchedulerOptions options = null)
         {
             this.spider = spider;
-            if(options == null)
+            if (options == null)
             {
                 this.options = new DownloadSchedulerOptions();
             }
@@ -63,20 +68,45 @@ namespace SpiderTools.Download
         }
 
         /// <summary>
+        /// 默认的成功的处理函数
+        /// 
+        /// </summary>
+        public Action<RequestBase, string> DefaultOnSuccess { get; set; }
+
+        /// <summary>
         /// 添加一个下载任务
         /// </summary>
         /// <param name="url">下载地址</param>
         /// <param name="onSuccess">成功后的处理</param>
         /// <param name="onFail">失败后的处理</param>
-        public void Add(string url, Action<RequestBase, string> onSuccess, Action<RequestBase, string> onFail = null)
+        public void Add(string url, Action<RequestBase, string> onSuccess = null, Action<RequestBase, string> onFail = null)
         {
+            Add(url, "POST", onSuccess, onFail);
+        }
+
+        /// <summary>
+        /// 添加一个下载任务
+        /// </summary>
+        /// <param name="url">下载地址</param>
+        /// <param name="methType">默认是 POST </param>
+        /// <param name="onSuccess">成功后的处理</param>
+        /// <param name="onFail">失败后的处理</param>
+        public void Add(string url, string methType, Action<RequestBase, string> onSuccess = null, Action<RequestBase, string> onFail = null)
+        { 
             var task = new DownTask()
             {
-                Request = new RequestBase(url),                
+                Request = new RequestBase(url, methType),
             };
 
             if (onSuccess != null)
+            {
                 task.Propertys.Add("onSuccessFun", onSuccess);
+            }
+            else
+            {
+                if (DefaultOnSuccess != null)
+                    task.Propertys.Add("onSuccessFun", DefaultOnSuccess);
+            }
 
             if (onFail != null)
                 task.Propertys.Add("onFailsFun", onFail);

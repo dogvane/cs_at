@@ -23,7 +23,7 @@ namespace common
             //在当前目录或者根目录中寻找文件
 
             var directory = AppContext.BaseDirectory;
-
+            Console.WriteLine($"base path: {directory}");
             foreach(var fileName in Directory.GetFiles(directory, "*.json"))
             {
                 var info = new FileInfo(fileName);
@@ -31,8 +31,10 @@ namespace common
                 {
                     try
                     {
+                        Console.WriteLine($"load config file: {fileName}");
+
                         var builder = new ConfigurationBuilder()
-                            .AddJsonFile(info.FullName, false, true);
+                            .AddJsonFile(info.FullName, false, false);
 
                         var _configuration = builder.Build();
                         _allconfigurations.Add(_configuration);
@@ -47,6 +49,28 @@ namespace common
             }
         }
 
+
+        /// <summary>
+        /// 获得数据存放的目录
+        /// </summary>
+        /// <param name="subFolder">如果传参，则需做子目录配置</param>
+        /// <param name="checkAndCreate">检查目录是否存在，如果不存在则默认进行创建</param>
+        /// <returns></returns>
+        public static string GetDataFolder(string subFolder = null, bool checkAndCreate = true)
+        {
+            var folder = GetValue("datafolder");
+            if (folder == null)
+                folder = Path.Combine(AppContext.BaseDirectory, "data");
+
+            if(!string.IsNullOrEmpty(subFolder))
+                folder = Path.Combine(folder, subFolder);
+
+            if(checkAndCreate && !Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            return folder;
+        }
+
         /// <summary>
         /// 获取配置值
         /// </summary>
@@ -57,8 +81,11 @@ namespace common
         {
             foreach(var item in _allconfigurations)
             {
-                if (item.GetSection(key) != null)
-                    return item.GetSection(key).Value;
+                var section = item.GetSection(key);
+                if (section != null && section.Value != null)
+                {
+                    return section.Value;
+                }
             }
 
             return defaultValue;
