@@ -22,6 +22,11 @@ namespace MysteelSpider
         string dataBaseFolder = ConfigHelper.GetDataFolder("mysheel/fastcomment");
 
         /// <summary>
+        /// 刷新文件的时间间隔
+        /// </summary>
+        static TimeSpan refreshFileTime = TimeSpan.FromMinutes(10);
+        
+                /// <summary>
         /// 下一次刷新的时间
         /// </summary>
         DateTime nextRefreshTime = DateTime.Now;
@@ -29,7 +34,7 @@ namespace MysteelSpider
         /// <summary>
         /// 下一次文件信息刷新缓存的时间
         /// </summary>
-        DateTime nextFileFlushTime = DateTime.Now.AddHours(1);
+        DateTime nextFileFlushTime = DateTime.Now.Add(refreshFileTime);
 
         /// <summary>
         /// 获得今天的用于保存图片的地址
@@ -99,6 +104,8 @@ namespace MysteelSpider
             var lessItems = refreshItems(response.list);
             if (lessItems.Count > 0)
             {
+                Console.WriteLine($"refresh {lessItems.Count} items");
+
                 // 刷新文件数据到文件
                 FlushCacheToFile();
 
@@ -113,7 +120,7 @@ namespace MysteelSpider
             if (DateTime.Now > nextFileFlushTime)
             {
                 FlushCacheToFile();
-                nextFileFlushTime = nextFileFlushTime.AddHours(1);
+                nextFileFlushTime = nextFileFlushTime.Add(refreshFileTime);
             }
         }
 
